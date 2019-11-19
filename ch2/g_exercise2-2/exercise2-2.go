@@ -10,11 +10,35 @@ import (
 )
 
 func main() {
-	meas, err := strconv.ParseFloat(os.Args[2], 64)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "cf: %v\n", err)
+	usage := `
+	USAGE:  
+
+	FORMAT: -<convertToFlag> <measurementValue>  
+		EX: 'go run exercise2-2.go -f 100'  
+		EX OUTPUT: 100 °C = 212 °F
+
+	CONVERSION UNITS:  
+		-f  convert to fahrenheit
+		-c  convert to celsius
+		-lb convert to pounds
+		-kg convert to kilograms
+		-ft convert to feet
+		-m convert to meters
+	
+	`
+	args := os.Args
+	if len(args) < 3 {
+		fmt.Println(usage)
 		os.Exit(1)
 	}
+
+	meas, err := strconv.ParseFloat(os.Args[2], 64)
+	if err != nil {
+		fmt.Printf("cf: %v\n", err)
+		fmt.Println(usage)
+		os.Exit(1)
+	}
+
 	farPtr := flag.Bool("f", false, "a bool")
 	celPtr := flag.Bool("c", false, "a bool")
 	poundPtr := flag.Bool("lb", false, "a bool")
@@ -43,5 +67,7 @@ func main() {
 	case *meterPtr:
 		ft := conversions.Feet(meas)
 		fmt.Printf("%v ft = %v m\n", meas, conversions.FtToM(ft))
+	default:
+		fmt.Println("usage: ")
 	}
 }

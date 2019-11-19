@@ -29,7 +29,7 @@ func main() {
 	args := os.Args
 	if len(args) < 3 {
 		fmt.Println(usage)
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	meas, err := strconv.ParseFloat(os.Args[2], 64)

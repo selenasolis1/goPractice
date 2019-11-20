@@ -5,12 +5,12 @@ import "fmt"
 //solution to declaring two functions of the same name
 //to all types there is a new type "bot"
 type bot interface {
-	//if you are a type with a function called getGreeting and return a type string,
-	//you are also of type bot and can use the getGreeting() function
+	//if there is a type with a function called getGreeting and returns a type string,
+	//that type is also of type bot and can use the getGreeting() function
 	getGreeting() string
 }
 
-//both of type "bot" as well because of line 22 & 23
+//both of type "bot" as well because of line 31 & 36
 type englishBot struct{}
 type spanishBot struct{}
 

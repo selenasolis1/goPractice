@@ -5,7 +5,6 @@ import "fmt"
 var a = [6]int{0, 1, 2, 3, 4, 5}
 
 func main() {
-
 	// fmt.Println("reverse: ", reverse(a[:]))
 	fmt.Println("original: ", a)
 	reverse(&a)

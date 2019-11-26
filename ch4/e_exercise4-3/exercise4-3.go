@@ -8,9 +8,8 @@ func main() {
 
 	// fmt.Println("reverse: ", reverse(a[:]))
 	fmt.Println("original: ", a)
-	b := &a
-	reverse(b)
-	fmt.Println("reversed: ", b)
+	reverse(&a)
+	fmt.Println("reversed: ", a)
 }
 
 func reverse(s *[6]int) {

@@ -13,8 +13,10 @@ import (
 	"time"
 )
 
+//API url
 const IssuesURL = "https://api.github.com/search/issues"
 
+//structs for all outputs from api response
 //names of all the struct fields must be capitalized because they
 //are being exported
 type IssuesSearchResult struct {
@@ -36,18 +38,24 @@ type User struct {
 }
 
 func main() {
+	//command line args sent to SearchIssues function
 	result, err := SearchIssues(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
+	//prints total number of issues
 	fmt.Printf("%d issues:\n", result.TotalCount)
+	//ranges through array to print each issue
 	for _, item := range result.Items {
 		fmt.Printf("#%-5d %9.9s %.55s\n", item.Number, item.User.Login, item.Title)
 	}
 }
 
+//search using parameters indicated by command line arguments
 func SearchIssues(terms []string) (*IssuesSearchResult, error) {
+	//QueryEscape in order to place inside url string
 	q := url.QueryEscape(strings.Join(terms, " "))
+	//Get request concatenating command line args with base URL
 	resp, err := http.Get(IssuesURL + "?q=" + q)
 	if err != nil {
 		return nil, err

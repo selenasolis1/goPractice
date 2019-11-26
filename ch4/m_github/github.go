@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -37,18 +38,35 @@ type User struct {
 	HTMLURL string `json:"html_url"`
 }
 
+//create template variable
+const templ = `{{.TotalCount}} issues:
+{{range .Items}}-------------------------------------------------------------------
+Number: {{.Number}}
+User: {{.User.Login}}
+Title: {{.Title | printf "%.64s"}}
+Age: {{.CreatedAt | daysAgo}} days
+{{end}}`
+
+//
+var report = template.Must(template.New("issuelist").
+	Funcs(template.FuncMap{"daysAgo": daysAgo}). //adds daysAgo to set of functions accesible
+	Parse(templ))
+
 func main() {
 	//command line args sent to SearchIssues function
 	result, err := SearchIssues(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
-	//prints total number of issues
-	fmt.Printf("%d issues:\n", result.TotalCount)
-	//ranges through array to print each issue
-	for _, item := range result.Items {
-		fmt.Printf("#%-5d %9.9s %.55s\n", item.Number, item.User.Login, item.Title)
+	if err := report.Execute(os.Stdout, result); err != nil {
+		log.Fatal(err)
 	}
+	// //prints total number of issues
+	// fmt.Printf("%d issues:\n", result.TotalCount)
+	// //ranges through array to print each issue
+	// for _, item := range result.Items {
+	// 	fmt.Printf("#%-5d %9.9s %.55s\n", item.Number, item.User.Login, item.Title)
+	// }
 }
 
 //search using parameters indicated by command line arguments
@@ -74,4 +92,8 @@ func SearchIssues(terms []string) (*IssuesSearchResult, error) {
 	}
 	resp.Body.Close()
 	return &result, nil
+}
+
+func daysAgo(t time.Time) int {
+	return int(time.Since(t).Hours() / 24)
 }

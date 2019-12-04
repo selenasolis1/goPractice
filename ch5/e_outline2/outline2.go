@@ -28,7 +28,7 @@ func outline(url string) error {
 		return err
 	}
 
-	forEachNode(doc, startElement, endElement)
+	forEachNode(doc, startElement, endElement, onlyElement)
 
 	return nil
 }
@@ -37,19 +37,23 @@ func outline(url string) error {
 //x in the tree rooted at n. Both functions are optional
 //pre is called before the children are visited (preorder) and
 //post is called after (postorder)
-func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
-	fmt.Println(n.Data)
-	fmt.Println(pre)
-	fmt.Println(post)
-	if pre != nil {
+func forEachNode(n *html.Node, pre, post, only func(n *html.Node)) {
+	// fmt.Println("current node: ", n.Data)
+	if pre != nil && n.NextSibling != nil {
+		next := n.NextSibling
+		if next.Type != html.ElementNode {
+			only(n)
+		}
+	} else if pre != nil {
 		pre(n)
 	}
 
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		forEachNode(c, pre, post)
+		// fmt.Println("next sib: ", c.Data)
+		forEachNode(c, pre, post, only)
 	}
 
-	if post != nil {
+	if post != nil && only != nil {
 		post(n)
 	}
 }
@@ -72,8 +76,24 @@ func startElement(n *html.Node) {
 }
 
 func endElement(n *html.Node) {
+
 	if n.Type == html.ElementNode {
 		depth--
 		fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
 	}
+}
+
+func onlyElement(n *html.Node) {
+	if n.Type == html.ElementNode && len(n.Attr) == 0 {
+		fmt.Printf("%*s<%s/>\n", depth*2, "", n.Data)
+		depth++
+	} else if n.Type == html.ElementNode {
+		var str string
+		for _, a := range n.Attr {
+			str += " " + a.Key + "=" + a.Val
+			fmt.Printf("%*s<%s%s/>\n", depth*2, "", n.Data, str)
+		}
+		depth++
+	}
+
 }

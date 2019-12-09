@@ -38,11 +38,14 @@ func main() {
 func NewTimer(seconds int) {
 	timer := time.NewTimer(time.Second * time.Duration(seconds))
 	for {
+		fmt.Println("select")
 		select {
 		case <-timer.C:
 			fmt.Printf("It's been %v seconds: %v\n", seconds, time.Now())
 			// Complete event in wait group
 			wg.Done()
+			fmt.Println("done")
+			return
 		}
 	}
 }

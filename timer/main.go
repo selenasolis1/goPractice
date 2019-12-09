@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -9,42 +10,39 @@ const two_seconds = 2
 const five_seconds = 5
 const ten_seconds = 10
 
+// Wait group variable for timers
+var wg sync.WaitGroup
+
 func main() {
 
-	// Run timer for 60 seconds. When timer expires,
-	// call a function to print out that our timer is done.
-	timer1 := NewTimer(two_seconds, func() {
-		fmt.Println("It's been two seconds ", time.Now())
-	})
+	// Adds one event to wait group
+	wg.Add(1)
+	//Creates new go routine
+	go NewTimer(two_seconds)
 
-	timer2 := NewTimer(five_seconds, func() {
-		fmt.Println("It's been five seconds ", time.Now())
-	})
+	// Adds one event to wait group
+	wg.Add(1)
+	//Creates new go routine
+	go NewTimer(five_seconds)
 
-	timer3 := NewTimer(ten_seconds, func() {
-		fmt.Println("It's been ten seconds ", time.Now())
-	})
+	// Adds one event to wait group
+	wg.Add(1)
+	//Creates new go routine
+	go NewTimer(ten_seconds)
 
-	defer timer1.Stop()
-	defer timer2.Stop()
-	defer timer3.Stop()
-
-	countdownBeforeExit := time.NewTimer(time.Second * 30)
-	<-countdownBeforeExit.C
-
+	// Wait to finish main go routine until all events are finished
+	wg.Wait()
 }
 
-// NewTimer creates a timer that runs for a specified number of seconds.
-// When the timer finishes, it calls the action function.
-// Use the returned timer to stop the timer early, if needed.
-func NewTimer(seconds int, action func()) *time.Timer {
-
+// NewTimer creates a new timer
+func NewTimer(seconds int) {
 	timer := time.NewTimer(time.Second * time.Duration(seconds))
-
-	go func() {
-		<-timer.C
-		action()
-	}()
-
-	return timer
+	for {
+		select {
+		case <-timer.C:
+			fmt.Printf("It's been %v seconds: %v\n", seconds, time.Now())
+			// Complete event in wait group
+			wg.Done()
+		}
+	}
 }

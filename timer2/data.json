@@ -1,0 +1,42 @@
+[
+    {
+        "component": "FMV01",
+        "state":     1,
+        "time":      5
+    },
+    {
+        "component": "FRP03",
+        "state":     50,
+        "time":      10
+    },
+    {
+        "component": "FRV05",
+        "state":     1,
+        "time":      15
+    },
+    {
+        "component": "FRP02",
+        "state":     50,
+        "time":      20
+    },
+    {
+        "component": "FRP02",
+        "state":     0,
+        "time":      25
+    },
+    {
+        "component": "FRV05",
+        "state":     0,
+        "time":      26
+    },
+    {
+        "component": "FMV01",
+        "state":     0,
+        "time":      27
+    },
+    {
+        "component": "FRP03",
+        "state":     0,
+        "time":      30
+    }
+]

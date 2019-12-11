@@ -16,7 +16,7 @@ var wg sync.WaitGroup
 func main() {
 	// Adds one event to wait group
 	wg.Add(1)
-	//Creates new go routine
+	// Creates new go routine
 	go NewTimer(two_seconds)
 
 	// Adds one event to wait group

@@ -82,10 +82,15 @@ func (pdu *PDU) UnmarshalJSON(blob []byte) error {
 			Quantity:        uint16(m["quantity"].(float64)),
 		}
 	case "start-write-mult-data":
-		str := fmt.Sprint(m["write-data"])
+
+		// json package marshals byte slice into
+		// encoded base64 string. Unmarshaled interface
+		// needs type assertion to string and base64 decoding
+		// prior to assigning as type byte slice
+		str := m["write-data"].(string)
 		b, err := base64.StdEncoding.DecodeString(str)
 		if err != nil {
-			return err
+			return fmt.Errorf("encoding error in unmarshal: %w", err)
 		}
 		pdu.Data = StartWriteMultData{
 			StartingAddress: uint16(m["starting-address"].(float64)),

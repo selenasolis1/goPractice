@@ -49,8 +49,6 @@ func (pdu PDU) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements the json.Unmarshaler interface for
 // PDUs.
 func (pdu *PDU) UnmarshalJSON(blob []byte) error {
-	fmt.Printf("blob from PDU.UnmarshalJSON is: %v\n", string(blob))
-
 	// After looking at the blob we can unmarshal this into a map
 	// because we see it is just a set of key-value pairs.
 	m := make(map[string]interface{})
@@ -58,7 +56,6 @@ func (pdu *PDU) UnmarshalJSON(blob []byte) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("map from PDU.UnmarshalJSON is: %v\n", m)
 
 	// Now that we have a map we can start making assignments to the
 	// PDU members, but we have to make type assertions on the types

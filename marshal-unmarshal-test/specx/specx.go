@@ -2,6 +2,7 @@ package specx
 
 import (
 	"encoding"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -32,6 +33,12 @@ func (pdu PDU) MarshalJSON() ([]byte, error) {
 		m["type"] = "start-quant-data"
 		m["starting-address"] = v.StartingAddress
 		m["quantity"] = v.Quantity
+	case StartWriteMultData:
+		m["type"] = "start-write-mult-data"
+		m["starting-address"] = v.StartingAddress
+		m["quantity"] = v.Quantity
+		m["byte-count"] = v.ByteCount
+		m["write-data"] = v.WriteData
 	default:
 		m["type"] = "unknown"
 	}
@@ -77,6 +84,19 @@ func (pdu *PDU) UnmarshalJSON(blob []byte) error {
 			StartingAddress: uint16(m["starting-address"].(float64)),
 			Quantity:        uint16(m["quantity"].(float64)),
 		}
+	case "start-write-mult-data":
+		str := fmt.Sprint(m["write-data"])
+		b, err := base64.StdEncoding.DecodeString(str)
+		if err != nil {
+			return err
+		}
+		pdu.Data = StartWriteMultData{
+			StartingAddress: uint16(m["starting-address"].(float64)),
+			Quantity:        uint16(m["quantity"].(float64)),
+			ByteCount:       byte(m["byte-count"].(float64)),
+			WriteData:       b,
+		}
+
 	default:
 		pdu.Data = nil
 	}

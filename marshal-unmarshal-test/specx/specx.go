@@ -2,6 +2,7 @@ package specx
 
 import (
 	"encoding"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -32,6 +33,12 @@ func (pdu PDU) MarshalJSON() ([]byte, error) {
 		m["type"] = "start-quant-data"
 		m["starting-address"] = v.StartingAddress
 		m["quantity"] = v.Quantity
+	case StartWriteMultData:
+		m["type"] = "start-write-mult-data"
+		m["starting-address"] = v.StartingAddress
+		m["quantity"] = v.Quantity
+		m["byte-count"] = v.ByteCount
+		m["write-data"] = v.WriteData
 	default:
 		m["type"] = "unknown"
 	}
@@ -42,8 +49,6 @@ func (pdu PDU) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements the json.Unmarshaler interface for
 // PDUs.
 func (pdu *PDU) UnmarshalJSON(blob []byte) error {
-	fmt.Printf("blob from PDU.UnmarshalJSON is: %v\n", string(blob))
-
 	// After looking at the blob we can unmarshal this into a map
 	// because we see it is just a set of key-value pairs.
 	m := make(map[string]interface{})
@@ -51,7 +56,6 @@ func (pdu *PDU) UnmarshalJSON(blob []byte) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("map from PDU.UnmarshalJSON is: %v\n", m)
 
 	// Now that we have a map we can start making assignments to the
 	// PDU members, but we have to make type assertions on the types
@@ -77,6 +81,24 @@ func (pdu *PDU) UnmarshalJSON(blob []byte) error {
 			StartingAddress: uint16(m["starting-address"].(float64)),
 			Quantity:        uint16(m["quantity"].(float64)),
 		}
+	case "start-write-mult-data":
+
+		// json package marshals byte slice into
+		// encoded base64 string. Unmarshaled interface
+		// needs type assertion to string and base64 decoding
+		// prior to assigning as type byte slice
+		str := m["write-data"].(string)
+		b, err := base64.StdEncoding.DecodeString(str)
+		if err != nil {
+			return fmt.Errorf("encoding error in unmarshal: %w", err)
+		}
+		pdu.Data = StartWriteMultData{
+			StartingAddress: uint16(m["starting-address"].(float64)),
+			Quantity:        uint16(m["quantity"].(float64)),
+			ByteCount:       byte(m["byte-count"].(float64)),
+			WriteData:       b,
+		}
+
 	default:
 		pdu.Data = nil
 	}
